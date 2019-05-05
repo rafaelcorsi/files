@@ -112,7 +112,6 @@ public class PF.ConnectServerDialog : Gtk.Dialog {
         );
 
         show_all ();
-        type_combobox.active = 0;
     }
 
     construct {
@@ -276,7 +275,8 @@ public class PF.ConnectServerDialog : Gtk.Dialog {
             type_store.set (iter, 0, method, 1, method.description);
         }
 
-        type_combobox.changed.connect (() => type_changed ());
+        type_combobox.active = 0;
+        type_combobox.changed.connect_after (() => type_changed ());
 
         server_entry.changed.connect (() => {
             set_button_sensitivity ();
@@ -306,7 +306,8 @@ public class PF.ConnectServerDialog : Gtk.Dialog {
     private void type_changed () {
         Gtk.TreeIter iter;
         if (!type_combobox.get_active_iter (out iter)) {
-            critical ("Error with GVFS");
+            critical ("No active connection type - ignoring change");
+            return;
         }
 
         Value val;
