@@ -33,7 +33,6 @@ namespace Marlin.View {
         private const string EMPTY_RECENT_MESSAGE = _("There Are No Recent Files");
         private const string DENIED_MESSAGE = _("Access Denied");
 
-        public bool is_active {get; protected set;}
         public int displayed_files_count {
             get {
                 if (directory != null && directory.state == GOF.Directory.Async.State.LOADED) {
@@ -95,17 +94,10 @@ namespace Marlin.View {
         }
 
         private void connect_slot_signals () {
-            active.connect (() => {
+            notify["is-active"].connect (() => {
                 if (is_active) {
-                    return;
+                    dir_view.grab_focus ();
                 }
-
-                is_active = true;
-                dir_view.grab_focus ();
-            });
-
-            inactive.connect (() => {
-                is_active = false;
             });
 
             folder_deleted.connect ((file, dir) => {
@@ -336,14 +328,6 @@ namespace Marlin.View {
         public override void focus_first_for_empty_selection (bool select = true) {
             if (dir_view != null) {
                 dir_view.focus_first_for_empty_selection (select);
-            }
-        }
-
-        public override void set_active_state (bool set_active, bool animate = true) {
-            if (set_active) {
-                active (true, animate);
-            } else {
-                inactive ();
             }
         }
 

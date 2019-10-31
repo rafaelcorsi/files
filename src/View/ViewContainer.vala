@@ -270,6 +270,7 @@ namespace Marlin.View {
         public void change_view_mode (Marlin.ViewMode mode, GLib.File? loc = null) {
             var aslot = get_current_slot ();
             assert (aslot != null);
+
             if (loc == null) {
                 loc = location;
             }
@@ -287,9 +288,8 @@ namespace Marlin.View {
             store_selection ();
             /* Make sure async loading and thumbnailing are cancelled and signal handlers disconnected */
             view.close ();
-            disconnect_slot_signals (view);
-            content = null; /* Make sure old slot and directory view are destroyed */
-            view = null; /* Pre-requisite for add view */
+            view.dispose ();
+            view = null;
         }
 
         private void after_mode_change () {
@@ -300,25 +300,15 @@ namespace Marlin.View {
         }
 
         private void connect_slot_signals (GOF.AbstractSlot aslot) {
-            aslot.active.connect (on_slot_active);
+            aslot.notify["is_active"].connect (() => {
+                refresh_slot_info (aslot.location);
+            });
+
             aslot.path_changed.connect (on_slot_path_changed);
             aslot.new_container_request.connect (on_slot_new_container_request);
             aslot.selection_changed.connect (on_slot_selection_changed);
             aslot.directory_loaded.connect (on_slot_directory_loaded);
             aslot.item_hovered.connect (on_slot_item_hovered);
-        }
-
-        private void disconnect_slot_signals (GOF.AbstractSlot aslot) {
-            aslot.active.disconnect (on_slot_active);
-            aslot.path_changed.disconnect (on_slot_path_changed);
-            aslot.new_container_request.disconnect (on_slot_new_container_request);
-            aslot.selection_changed.disconnect (on_slot_selection_changed);
-            aslot.directory_loaded.disconnect (on_slot_directory_loaded);
-            aslot.item_hovered.disconnect (on_slot_item_hovered);
-        }
-
-        private void on_slot_active (GOF.AbstractSlot aslot, bool scroll, bool animate) {
-            refresh_slot_info (slot.location);
         }
 
         private void open_location (GLib.File loc,
@@ -471,11 +461,11 @@ namespace Marlin.View {
            return view != null ? view.get_current_slot () : null;
         }
 
-        public void set_active_state (bool is_active, bool animate = true) {
+        public void set_active_state (bool is_active) {
             var aslot = get_current_slot ();
             if (aslot != null) {
                 /* Since async loading it may not have been determined whether slot is loadable */
-                aslot.set_active_state (is_active, animate);
+                aslot.is_active = true;
                 if (is_active) {
                     active ();
                 }

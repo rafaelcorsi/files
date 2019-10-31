@@ -522,8 +522,8 @@ namespace FM {
         }
 
 /*** Protected Methods */
-        protected void set_active_slot (bool scroll = true) {
-            slot.active (scroll);
+        protected void set_active_slot () {
+            slot.is_active = true;
         }
 
         protected void load_location (GLib.File location) {
@@ -3415,7 +3415,7 @@ namespace FM {
                 return true;
             }
 
-            slot.active (should_scroll);
+            slot.is_active = true;
 
             Gtk.Widget widget = get_real_view ();
             int x = (int)event.x;

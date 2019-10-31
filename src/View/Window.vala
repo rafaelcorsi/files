@@ -387,7 +387,7 @@ namespace Marlin.View {
             }
 
             loading_uri (current_tab.uri);
-            current_tab.set_active_state (true, false); /* changing tab should not cause animated scrolling */
+            current_tab.set_active_state (true); /* changing tab should not cause animated scrolling */
             top_menu.working = current_tab.is_frozen;
         }
 
@@ -408,7 +408,7 @@ namespace Marlin.View {
                     add_tab (location, mode);
                     /* Ensure default tab's slot is active so it can be focused */
                     current_tab = (ViewContainer)(tabs.current.page);
-                    current_tab.set_active_state (true, false);
+                    current_tab.set_active_state (true);
                 }
             } else {
                 /* Open tabs at each requested location */

@@ -20,6 +20,8 @@
 namespace GOF {
     public abstract class AbstractSlot : GLib.Object {
 
+        public virtual bool is_active {get; set; default = false;}
+
         GOF.Directory.Async _directory;
         public GOF.Directory.Async? directory {
             get {
@@ -59,8 +61,6 @@ namespace GOF {
         protected int slot_number;
         protected int width;
 
-        public signal void active (bool scroll = true, bool animate = true);
-        public signal void inactive ();
         public signal void path_changed ();
         public signal void new_container_request (GLib.File loc, Marlin.OpenFlag flag);
         public signal void selection_changed (GLib.List<GOF.File> files);
@@ -93,7 +93,6 @@ namespace GOF {
 
         public abstract void initialize_directory ();
         public abstract unowned GLib.List<GOF.File>? get_selected_files ();
-        public abstract void set_active_state (bool set_active, bool animate = true);
         public abstract unowned AbstractSlot? get_current_slot ();
         public abstract void reload (bool non_local_only = false);
         public abstract void grab_focus ();
@@ -115,6 +114,5 @@ namespace GOF {
         public virtual string? get_root_uri () {return directory.file.uri;}
         public virtual string? get_tip_uri () {return null;}
         public virtual bool get_realized () {return content_box.get_realized ();}
-
     }
 }
