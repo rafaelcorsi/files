@@ -31,7 +31,9 @@ public class GOF.File : GLib.Object {
         LOADING
     }
 
-    public const string GIO_DEFAULT_ATTRIBUTES = "standard::is-hidden,standard::is-backup,standard::is-symlink,standard::type,standard::name,standard::display-name,standard::content-type,standard::fast-content-type,standard::size,standard::symlink-target,standard::target-uri,access::*,time::*,owner::*,trash::*,unix::*,id::filesystem,thumbnail::*,mountable::*,metadata::marlin-sort-column-id,metadata::marlin-sort-reversed";
+    public const string GIO_DEFAULT_ATTRIBUTES = "standard::is-hidden,standard::is-backup,standard::is-symlink,standard::type,standard::name,standard::display-name,standard::content-type,standard::fast-content-type,standard::size,standard::symlink-target,standard::target-uri,access::*,time::*,owner::*,trash::*,unix::*,id::filesystem,thumbnail::*,mountable::*,metadata::marlin-sort-column-id,metadata::marlin-sort-reversed,metadata::color-tag";
+
+    public const string COLOR_TAG_ATTRIBUTE = "metadata::color-tag";
 
     public signal void changed ();
     public signal void icon_changed ();
@@ -50,7 +52,8 @@ public class GOF.File : GLib.Object {
     public string uri = null;
     public uint64 size = 0;
     public string format_size = null;
-    public int color = 0;
+    public int color { get; private set; default = 0; }
+
     public uint64 modified;
     public string formated_modified = null;
     public string formated_type = null;
@@ -183,6 +186,26 @@ public class GOF.File : GLib.Object {
     public void set_expanded (bool expanded) {
         GLib.return_if_fail (is_directory);
         is_expanded = expanded;
+    }
+
+    public void set_color_tag (int _color) {
+        var color_info = new FileInfo ();
+        color_info.set_attribute_string (COLOR_TAG_ATTRIBUTE, _color.to_string ());
+        location.set_attributes_async.begin (color_info,
+                                             GLib.FileQueryInfoFlags.NONE,
+                                             GLib.Priority.DEFAULT,
+                                             null,
+                                            (obj, res) => {
+            try {
+                FileInfo inf;
+                location.set_attributes_async.end (res, out inf);
+            } catch (GLib.Error e) {
+                warning ("Could not set color tag metadata - %s", e.message);
+            }
+        });
+
+        color = _color;
+        debug ("Set xattr color %i", _color);
     }
 
     public bool is_folder () {
@@ -451,6 +474,11 @@ public class GOF.File : GLib.Object {
 
         if (info.has_attribute (GLib.FileAttribute.STANDARD_ICON)) {
             icon = info.get_attribute_object (GLib.FileAttribute.STANDARD_ICON) as GLib.Icon;
+        }
+
+        if (info.has_attribute (COLOR_TAG_ATTRIBUTE)) {
+            color = int.parse (info.get_attribute_string (COLOR_TAG_ATTRIBUTE));
+            debug ("Found xattr color %i", color);
         }
 
         /* Any location or target on a mount will now have the file->mount and file->is_mounted set */

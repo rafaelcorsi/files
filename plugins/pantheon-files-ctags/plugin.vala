@@ -202,7 +202,7 @@ public class Marlin.Plugins.CTags : Marlin.Plugins.Base {
                 unowned string type = row_iter.next_value ().get_string ();
                 var color = int.parse (row_iter.next_value ().get_string ());
                 if (file.color != color) {
-                    file.color = color;
+                    file.set_color_tag (color);
                     file.icon_changed (); /* Just need to trigger redraw - the underlying GFile has not changed */
                 }
                 /* check modified time field only on user dirs. We don't want to query again and
@@ -248,7 +248,7 @@ public class Marlin.Plugins.CTags : Marlin.Plugins.Base {
                 /* Only interested in color tag in recent:// at the moment */
                 row_iter.next_value ();
                 row_iter.next_value ();
-                file.color = int.parse (row_iter.next_value ().get_string ());
+                file.set_color_tag (int.parse (row_iter.next_value ().get_string ()));
             }
         } catch (Error err) {
             warning ("%s", err.message);
@@ -312,7 +312,7 @@ public class Marlin.Plugins.CTags : Marlin.Plugins.Base {
             }
 
             if (target_file.color != n) {
-                target_file.color = n;
+                target_file.set_color_tag (n);
                 add_entry (target_file, entries);
             }
         }
