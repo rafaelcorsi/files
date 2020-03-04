@@ -41,15 +41,6 @@ public class PropertiesWindow : AbstractPropertiesDialog {
 
     public FM.AbstractDirectoryView view {get; private set;}
     public Gtk.Entry entry {get; private set;}
-    private string original_name {
-        get {
-            return view.original_name;
-        }
-
-        set {
-            view.original_name = value;
-        }
-    }
 
     private Mutex mutex;
     private GLib.List<Marlin.DeepCount>? deep_count_directories = null;
@@ -192,8 +183,7 @@ public class PropertiesWindow : AbstractPropertiesDialog {
             header_title = label;
         } else if (count == 1 && goffile.is_writable ()) {
             entry = new Gtk.Entry ();
-            original_name = goffile.info.get_name ();
-            reset_entry_text ();
+            entry.set_text (goffile.info.get_name ());
 
             entry.activate.connect (() => {
                 rename_file (goffile, entry.get_text ());
@@ -310,31 +300,23 @@ public class PropertiesWindow : AbstractPropertiesDialog {
 
     private void rename_file (GOF.File file, string new_name) {
         /* Only rename if name actually changed */
-        original_name = file.info.get_name ();
+        var original_name = file.info.get_name ();
 
         if (new_name.strip () != "" && new_name != original_name) {
             view.set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
                 GLib.File? new_location = null;
                 try {
                     new_location = view.set_file_display_name.end (res);
-                    reset_entry_text (new_location.get_basename ());
+                    entry.set_text (new_location.get_basename ());
                     goffile = GOF.File.@get (new_location);
                     files.first ().data = goffile;
                 } catch (Error e) {
-                    reset_entry_text (); //resets entry to old name
+                    entry.set_text (original_name); //resets entry to old name
                 }
             });
         } else {
-            reset_entry_text ();
+            entry.set_text (original_name);
         }
-    }
-
-    public void reset_entry_text (string? new_name = null) {
-        if (new_name != null) {
-            original_name = new_name;
-        }
-
-        entry.set_text (original_name);
     }
 
     private string? get_common_ftype () {
