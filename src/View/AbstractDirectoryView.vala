@@ -3192,23 +3192,23 @@ namespace FM {
                 return;
             }
 
-            if  (new_name == null || new_name.strip () == "") {
+            if (new_name == null || new_name.strip () == "") {
                 warning ("Blank name or name unchanged");
                 on_name_editing_canceled ();
                 return;
             }
 
-            var path = new Gtk.TreePath.from_string (path_string);
-            Gtk.TreeIter? iter = null;
-            model.get_iter (out iter, path);
-
-            GOF.File? file = null;
-            model.@get (iter, FM.ListModel.ColumnID.FILE_COLUMN, out file);
-
             /* Only rename if name actually changed */
             /* Because GOF.File.rename does not work correctly for remote files we handle ourselves */
 
             if (new_name != original_name) {
+                var path = new Gtk.TreePath.from_string (path_string);
+                Gtk.TreeIter? iter = null;
+                model.get_iter (out iter, path);
+
+                GOF.File? file = null;
+                model.@get (iter, FM.ListModel.ColumnID.FILE_COLUMN, out file);
+
                 set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
                     try {
                         set_file_display_name.end (res);
