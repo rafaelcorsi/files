@@ -51,16 +51,6 @@ public class PropertiesWindow : AbstractPropertiesDialog {
         }
     }
 
-    private string proposed_name {
-        get {
-            return view.proposed_name;
-        }
-
-        set {
-            view.proposed_name = value;
-        }
-    }
-
     private Mutex mutex;
     private GLib.List<Marlin.DeepCount>? deep_count_directories = null;
 
@@ -322,21 +312,18 @@ public class PropertiesWindow : AbstractPropertiesDialog {
         /* Only rename if name actually changed */
         original_name = file.info.get_name ();
 
-        if (new_name != "") {
-            if (new_name != original_name) {
-                proposed_name = new_name;
-                view.set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
-                    GLib.File? new_location = null;
-                    try {
-                        new_location = view.set_file_display_name.end (res);
-                        reset_entry_text (new_location.get_basename ());
-                        goffile = GOF.File.@get (new_location);
-                        files.first ().data = goffile;
-                    } catch (Error e) {
-                        reset_entry_text (); //resets entry to old name
-                    }
-                });
-            }
+        if (new_name.strip () != "" && new_name != original_name) {
+            view.set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
+                GLib.File? new_location = null;
+                try {
+                    new_location = view.set_file_display_name.end (res);
+                    reset_entry_text (new_location.get_basename ());
+                    goffile = GOF.File.@get (new_location);
+                    files.first ().data = goffile;
+                } catch (Error e) {
+                    reset_entry_text (); //resets entry to old name
+                }
+            });
         } else {
             reset_entry_text ();
         }

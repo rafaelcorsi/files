@@ -174,8 +174,7 @@ namespace FM {
 
         /* Rename support */
         protected Marlin.TextRenderer? name_renderer = null;
-        public string original_name = "";
-        public string proposed_name = "";
+        public string original_name = ""; // The name before renaming starts
 
         /* Support for zoom by smooth scrolling */
         private double total_delta_y = 0.0;
@@ -1280,7 +1279,7 @@ namespace FM {
                 add_file (file, dir, true); /* Always select files added to view after initial load */
                 handle_free_space_change ();
             } else {
-                critical ("Null file added");
+                warning ("Null file added"); // Happens on attempt to rename file with same name as another
             }
         }
 
@@ -3183,7 +3182,6 @@ namespace FM {
         protected void on_name_editing_canceled () {
             renaming = false;
             name_renderer.editable = false;
-            proposed_name = "";
             is_frozen = false;
             grab_focus ();
         }
@@ -3194,40 +3192,33 @@ namespace FM {
                 return;
             }
 
-            if  (new_name.strip () == "" || proposed_name == new_name) {
+            if  (new_name == null || new_name.strip () == "") {
                 warning ("Blank name or name unchanged");
                 on_name_editing_canceled ();
                 return;
             }
 
-            proposed_name = "";
-            if (new_name != "") {
-                var path = new Gtk.TreePath.from_string (path_string);
-                Gtk.TreeIter? iter = null;
-                model.get_iter (out iter, path);
+            var path = new Gtk.TreePath.from_string (path_string);
+            Gtk.TreeIter? iter = null;
+            model.get_iter (out iter, path);
 
-                GOF.File? file = null;
-                model.@get (iter, FM.ListModel.ColumnID.FILE_COLUMN, out file);
+            GOF.File? file = null;
+            model.@get (iter, FM.ListModel.ColumnID.FILE_COLUMN, out file);
 
-                /* Only rename if name actually changed */
-                /* Because GOF.File.rename does not work correctly for remote files we handle ourselves */
+            /* Only rename if name actually changed */
+            /* Because GOF.File.rename does not work correctly for remote files we handle ourselves */
 
-                if (new_name != original_name) {
-                    proposed_name = new_name;
-                    set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
-                        try {
-                            set_file_display_name.end (res);
-                        } catch (Error e) {
-                        }
+            if (new_name != original_name) {
+                set_file_display_name.begin (file.location, new_name, null, (obj, res) => {
+                    try {
+                        set_file_display_name.end (res);
+                    } catch (Error e) {
+                    }
 
-                        on_name_editing_canceled ();
-                    });
-                } else {
-                    warning ("Name unchanged");
                     on_name_editing_canceled ();
-                }
+                });
             } else {
-                warning ("No new name");
+                warning ("Name unchanged");
                 on_name_editing_canceled ();
             }
 
