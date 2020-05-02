@@ -70,18 +70,6 @@ posix_dep = vala.find_library('posix')
 linux_dep = vala.find_library('linux')
 math_dep = cc.find_library('m')
 
-unity_dep = []
-plank_dep = []
-if get_option('with-unity')
-    unity_dep = dependency('unity', version: '>=4.0.0')
-    add_project_arguments('--define=HAVE_UNITY', language: 'vala')
-
-    plank_dep = dependency('plank')
-    if plank_dep.version().version_compare('>=0.10.9')
-        add_project_arguments('--define=HAVE_PLANK_0_11', language: 'vala')
-    endif
-endif
-
 add_project_arguments(
     ['--vapidir', join_paths(meson.current_source_dir(), 'vapi')],
     language: 'vala'
