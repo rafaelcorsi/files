@@ -81,6 +81,7 @@ public class CustomFileChooserDialog : Object {
 
         var location_bar = new Marlin.View.Chrome.BasicLocationBar ();
         location_bar.hexpand = true;
+        location_bar.is_filechooser = true;
 
         header_bar.pack_start (button_back);
         header_bar.pack_start (button_forward);

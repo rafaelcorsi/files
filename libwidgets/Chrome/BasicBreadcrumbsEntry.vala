@@ -43,6 +43,7 @@ namespace Marlin.View.Chrome {
         public const double MINIMUM_LOCATION_BAR_ENTRY_WIDTH = 16;
         public const double MINIMUM_BREADCRUMB_WIDTH = 12;
         public const int ICON_WIDTH = 32;
+        public bool is_filechooser { get; set; default = false; }
         protected string placeholder = ""; /*Note: This is not the same as the Gtk.Entry placeholder_text */
         protected BreadcrumbElement? clicked_element = null;
         protected string? current_dir_path = null;
@@ -295,10 +296,10 @@ namespace Marlin.View.Chrome {
             var el = get_element_from_coordinates ((int)event.x, (int)event.y);
             if (el != null && !hide_breadcrumbs) {
                 set_tooltip_markup (_("Go to %s").printf (el.text_for_display));
-                set_entry_cursor (new Gdk.Cursor.from_name (Gdk.Display.get_default (), "default"));
+                set_entry_cursor ("default");
             } else {
-                set_entry_cursor (null);
                 set_default_entry_tooltip ();
+                set_entry_cursor ("text");
             }
 
             if (tip != null) {
@@ -367,8 +368,16 @@ namespace Marlin.View.Chrome {
 
     /** Entry functions **/
     /****************************/
-        public void set_entry_cursor (Gdk.Cursor? cursor) {
-            entry_window.set_cursor (cursor ?? new Gdk.Cursor.from_name (Gdk.Display.get_default (), "text"));
+        public void set_entry_cursor (string cursor_name) {
+            if (!is_filechooser && entry_window != null) {
+                var disp = Gdk.Display.get_default ();
+                if (disp != null) {
+                    var cur = new Gdk.Cursor.for_display (disp, cursor_name == "default" ? Gdk.CursorType.ARROW : Gdk.CursorType.XTERM);
+                    if  (cur != null) {
+                        entry_window.set_cursor (cur);
+                    }
+                }
+            }
         }
 
         protected virtual void set_default_entry_tooltip () {

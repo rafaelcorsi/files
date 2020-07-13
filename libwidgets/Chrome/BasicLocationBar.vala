@@ -25,6 +25,14 @@ namespace Marlin.View.Chrome {
         protected Gtk.Widget widget;
         private int minimum_width = 100;
         private string _path;
+        public bool is_filechooser {
+            set {
+                bread.is_filechooser = true;
+            }
+
+            default = false;
+        }
+
         protected string displayed_path {
             set {
                 if (value == null) {
