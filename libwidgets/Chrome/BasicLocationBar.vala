@@ -27,10 +27,8 @@ namespace Marlin.View.Chrome {
         private string _path;
         public bool is_filechooser {
             set {
-                bread.is_filechooser = true;
+                bread.is_filechooser = value;
             }
-
-            default = false;
         }
 
         protected string displayed_path {
@@ -68,6 +66,7 @@ namespace Marlin.View.Chrome {
         construct {
             margin_start = 3;
             valign = Gtk.Align.CENTER;
+            is_filechooser = false;
         }
 
         public BasicLocationBar (Navigatable? _bread = null) {
