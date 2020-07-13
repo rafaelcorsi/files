@@ -372,8 +372,8 @@ namespace Marlin.View.Chrome {
             if (!is_filechooser && entry_window != null) {
                 var disp = Gdk.Display.get_default ();
                 if (disp != null) {
-                    var cur = new Gdk.Cursor.for_display (disp, cursor_name == "default" ? Gdk.CursorType.ARROW : Gdk.CursorType.XTERM);
-                    if  (cur != null) {
+                    var cur = new Gdk.Cursor.from_name (disp, cursor_name);
+                    if (cur != null) {
                         entry_window.set_cursor (cur);
                     }
                 }
