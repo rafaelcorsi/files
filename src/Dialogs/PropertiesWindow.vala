@@ -198,8 +198,12 @@ public class PropertiesWindow : AbstractPropertiesDialog {
         }
 
         /* Build header box */
-        if (!only_one || (only_one && !goffile.is_writable ())) {
+        if (!only_one) {
             var label = new Gtk.Label (get_selected_label (selected_folders, selected_files));
+            label.halign = Gtk.Align.START;
+            header_title = label;
+        } else if (only_one && !goffile.is_writable ()) {
+            var label = new Gtk.Label (goffile.info.get_name ());
             label.halign = Gtk.Align.START;
             header_title = label;
         } else if (only_one && goffile.is_writable ()) {
